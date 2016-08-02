@@ -25,12 +25,12 @@
 # https://github.com/golang/sys
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     golang.org/x/sys
-%global commit          9c60d1c508f5134d1ca726b4641db998f2523357
+%global commit          33267e036fd93fcd26ea95b7bdaf2d8306cb743c
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 
 Name:           golang-%{provider}-%{project}-%{repo}
 Version:        0
-Release:        0.4.git%{shortcommit}%{?dist}
+Release:        0.5.git%{shortcommit}%{?dist}
 Summary:        Go packages for low-level interaction with the operating system
 License:        BSD
 URL:            https://%{provider_prefix}
@@ -155,6 +155,10 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace:%{gopath}
 %endif
 
 %changelog
+* Tue Aug 02 2016 jchaloup <jchaloup@redhat.com> - 0-0.5.git33267e0
+- Bump to upstream 33267e036fd93fcd26ea95b7bdaf2d8306cb743c
+  resolves: #1360748
+
 * Thu Jul 21 2016 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0-0.4.git9c60d1c
 - https://fedoraproject.org/wiki/Changes/golang1.7
 
