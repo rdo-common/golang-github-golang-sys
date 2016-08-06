@@ -5,11 +5,11 @@
 %global with_check 1
 %global with_unit_test 1
 %else
-%global with_devel 0
+%global with_devel 1
 %global with_bundled 0
 %global with_debug 0
 %global with_check 0
-%global with_unit_test 0
+%global with_unit_test 1
 %endif
 
 %if 0%{?with_debug}
@@ -30,7 +30,7 @@
 
 Name:           golang-%{provider}-%{project}-%{repo}
 Version:        0
-Release:        0.5.git%{shortcommit}%{?dist}
+Release:        0.6.git%{shortcommit}%{?dist}
 Summary:        Go packages for low-level interaction with the operating system
 License:        BSD
 URL:            https://%{provider_prefix}
@@ -155,6 +155,10 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace:%{gopath}
 %endif
 
 %changelog
+* Sat Aug 06 2016 jchaloup <jchaloup@redhat.com> - 0-0.6.git33267e0
+- Enable devel and unit-test subpackage for epel7
+  related: #1360748
+
 * Tue Aug 02 2016 jchaloup <jchaloup@redhat.com> - 0-0.5.git33267e0
 - Bump to upstream 33267e036fd93fcd26ea95b7bdaf2d8306cb743c
   resolves: #1360748
