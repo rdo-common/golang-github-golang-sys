@@ -25,12 +25,12 @@
 # https://github.com/golang/sys
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     golang.org/x/sys
-%global commit          33267e036fd93fcd26ea95b7bdaf2d8306cb743c
+%global commit          62bee037599929a6e9146f29d10dd5208c43507d
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 
 Name:           golang-%{provider}-%{project}-%{repo}
 Version:        0
-Release:        0.6.git%{shortcommit}%{?dist}
+Release:        0.7.git%{shortcommit}%{?dist}
 Summary:        Go packages for low-level interaction with the operating system
 License:        BSD
 URL:            https://%{provider_prefix}
@@ -155,6 +155,10 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace:%{gopath}
 %endif
 
 %changelog
+* Wed Aug 17 2016 jchaloup <jchaloup@redhat.com> - 0-0.7.git62bee03
+- Bump to upstream 62bee037599929a6e9146f29d10dd5208c43507d
+  related: #1360748
+
 * Sat Aug 06 2016 jchaloup <jchaloup@redhat.com> - 0-0.6.git33267e0
 - Enable devel and unit-test subpackage for epel7
   related: #1360748
