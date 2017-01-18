@@ -36,12 +36,12 @@
 # https://github.com/golang/sys
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     golang.org/x/sys
-%global commit          62bee037599929a6e9146f29d10dd5208c43507d
+%global commit          8f0908ab3b2457e2e15403d3697c9ef5cb4b57a9
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 
 Name:           golang-%{provider}-%{project}-%{repo}
 Version:        0
-Release:        0.8.git%{shortcommit}%{?dist}
+Release:        0.9.git%{shortcommit}%{?dist}
 Summary:        Go packages for low-level interaction with the operating system
 License:        BSD
 URL:            https://%{provider_prefix}
@@ -164,6 +164,10 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace:%{gopath}
 %endif
 
 %changelog
+* Wed Jan 18 2017 Jan Chaloupka <jchaloup@redhat.com> - 0-0.9.git8f0908a
+- Bump to upstream 8f0908ab3b2457e2e15403d3697c9ef5cb4b57a9
+  related: #1360748
+
 * Fri Dec 16 2016 Jan Chaloupka <jchaloup@redhat.com> - 0-0.8.git62bee03
 - Polish the spec file
   related: #1360748
