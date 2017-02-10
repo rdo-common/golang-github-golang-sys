@@ -41,7 +41,7 @@
 
 Name:           golang-%{provider}-%{project}-%{repo}
 Version:        0
-Release:        0.9.git%{shortcommit}%{?dist}
+Release:        0.10.git%{shortcommit}%{?dist}
 Summary:        Go packages for low-level interaction with the operating system
 License:        BSD
 URL:            https://%{provider_prefix}
@@ -164,6 +164,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace:%{gopath}
 %endif
 
 %changelog
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 0-0.10.git8f0908a
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Wed Jan 18 2017 Jan Chaloupka <jchaloup@redhat.com> - 0-0.9.git8f0908a
 - Bump to upstream 8f0908ab3b2457e2e15403d3697c9ef5cb4b57a9
   related: #1360748
