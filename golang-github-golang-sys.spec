@@ -36,12 +36,12 @@
 # https://github.com/golang/sys
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     golang.org/x/sys
-%global commit          8f0908ab3b2457e2e15403d3697c9ef5cb4b57a9
+%global commit          478fcf54317e52ab69f40bb4c7a1520288d7f7ea
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 
 Name:           golang-%{provider}-%{project}-%{repo}
 Version:        0
-Release:        0.10.git%{shortcommit}%{?dist}
+Release:        0.11.git%{shortcommit}%{?dist}
 Summary:        Go packages for low-level interaction with the operating system
 License:        BSD
 URL:            https://%{provider_prefix}
@@ -164,6 +164,10 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace:%{gopath}
 %endif
 
 %changelog
+* Tue Mar 14 2017 Jan Chaloupka <jchaloup@redhat.com> - 0-0.11.git478fcf5
+- Bump to upstream 478fcf54317e52ab69f40bb4c7a1520288d7f7ea
+  related: #1360748
+
 * Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 0-0.10.git8f0908a
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
