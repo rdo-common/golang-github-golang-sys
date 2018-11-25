@@ -36,12 +36,12 @@
 # https://github.com/golang/sys
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     golang.org/x/sys
-%global commit          e48874b42435b4347fc52bdee0424a52abc974d7
+%global commit          62eef0e2fa9b2c385f7b2778e763486da6880d37
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 
 Name:           golang-%{provider}-%{project}-%{repo}
 Version:        0
-Release:        0.14.git%{shortcommit}%{?dist}
+Release:        0.15.20181125git%{shortcommit}%{?dist}
 Summary:        Go packages for low-level interaction with the operating system
 License:        BSD
 URL:            https://%{provider_prefix}
@@ -55,6 +55,7 @@ BuildRequires:  %{?go_compiler:compiler(go-compiler)}%{!?go_compiler:golang}
 %description
 %{summary}
 
+
 %if 0%{?with_devel}
 %package devel
 Summary:       %{summary}
@@ -63,7 +64,9 @@ BuildArch:     noarch
 %if 0%{?with_check}
 %endif
 
+Provides:      golang(%{import_path}/cpu) = %{version}-%{release}
 Provides:      golang(%{import_path}/unix) = %{version}-%{release}
+Provides:      golang(%{import_path}/unix/linux) = %{version}-%{release}
 
 %description devel
 %{summary}
@@ -73,8 +76,9 @@ building other packages which use import path with
 %{import_path} prefix.
 %endif
 
+
 %if 0%{?with_unit_test} && 0%{?with_devel}
-%package unit-test
+%package unit-test-devel
 Summary:         Unit tests for %{name} package
 
 %if 0%{?with_check}
@@ -85,17 +89,24 @@ Summary:         Unit tests for %{name} package
 # test subpackage tests code from devel subpackage
 Requires:        %{name}-devel = %{version}-%{release}
 
-%description unit-test
+%description unit-test-devel
 %{summary}
 
 This package contains unit tests for project
 providing packages with %{import_path} prefix.
 %endif
 
+
 %prep
 %setup -q -n %{repo}-%{commit}
 
+# Remove plan9 and windows from package
+rm -rf plan9
+rm -rf windows
+
+
 %build
+
 
 %install
 # source codes for building projects
@@ -103,29 +114,33 @@ providing packages with %{import_path} prefix.
 install -d -p %{buildroot}/%{gopath}/src/%{import_path}/
 echo "%%dir %%{gopath}/src/%%{import_path}/." >> devel.file-list
 # find all *.go but no *_test.go files and generate devel.file-list
-for file in $(find . -iname "*.go" \! -iname "*_test.go" | grep ./unix) ; do
-    echo "%%dir %%{gopath}/src/%%{import_path}/$(dirname $file)" >> devel.file-list
-    install -d -p %{buildroot}/%{gopath}/src/%{import_path}/$(dirname $file)
+for file in $(find . \( -iname "*.go" -or -iname "*.s" \) \! -iname "*_test.go") ; do
+    dirprefix=$(dirname $file)
+    install -d -p %{buildroot}/%{gopath}/src/%{import_path}/$dirprefix
     cp -pav $file %{buildroot}/%{gopath}/src/%{import_path}/$file
     echo "%%{gopath}/src/%%{import_path}/$file" >> devel.file-list
-done
-for file in $(find . -iname "*.s" | grep ./unix) ; do
-    echo "%%dir %%{gopath}/src/%%{import_path}/$(dirname $file)" >> devel.file-list
-    install -d -p %{buildroot}/%{gopath}/src/%{import_path}/$(dirname $file)
-    cp -pav $file %{buildroot}/%{gopath}/src/%{import_path}/$file
-    echo "%%{gopath}/src/%%{import_path}/$file" >> devel.file-list
+
+    while [ "$dirprefix" != "." ]; do
+        echo "%%dir %%{gopath}/src/%%{import_path}/$dirprefix" >> devel.file-list
+        dirprefix=$(dirname $dirprefix)
+    done
 done
 %endif
 
 # testing files for this project
 %if 0%{?with_unit_test} && 0%{?with_devel}
 install -d -p %{buildroot}/%{gopath}/src/%{import_path}/
-# find all *_test.go files and generate unit-test.file-list
-for file in $(find . -iname "*_test.go" | grep ./unix); do
-    echo "%%dir %%{gopath}/src/%%{import_path}/$(dirname $file)" >> devel.file-list
-    install -d -p %{buildroot}/%{gopath}/src/%{import_path}/$(dirname $file)
+# find all *_test.go files and generate unit-test-devel.file-list
+for file in $(find . -iname "*_test.go") ; do
+    dirprefix=$(dirname $file)
+    install -d -p %{buildroot}/%{gopath}/src/%{import_path}/$dirprefix
     cp -pav $file %{buildroot}/%{gopath}/src/%{import_path}/$file
-    echo "%%{gopath}/src/%%{import_path}/$file" >> unit-test.file-list
+    echo "%%{gopath}/src/%%{import_path}/$file" >> unit-test-devel.file-list
+
+    while [ "$dirprefix" != "." ]; do
+        echo "%%dir %%{gopath}/src/%%{import_path}/$dirprefix" >> devel.file-list
+        dirprefix=$(dirname $dirprefix)
+    done
 done
 %endif
 
@@ -133,37 +148,44 @@ done
 sort -u -o devel.file-list devel.file-list
 %endif
 
+
 %check
 %if 0%{?with_check} && 0%{?with_unit_test} && 0%{?with_devel}
 %if ! 0%{?with_bundled}
 export GOPATH=%{buildroot}/%{gopath}:%{gopath}
 %else
-export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace:%{gopath}
+# No dependency directories so far
+
+export GOPATH=%{buildroot}/%{gopath}:%{gopath}
 %endif
 
 %if ! 0%{?gotest:1}
 %global gotest go test
 %endif
 
+%gotest %{import_path}/cpu
 %gotest %{import_path}/unix
 %endif
-
-#define license tag if not already defined
-%{!?_licensedir:%global license %doc}
 
 %if 0%{?with_devel}
 %files devel -f devel.file-list
 %license LICENSE
-%doc CONTRIBUTING.md README AUTHORS CONTRIBUTORS PATENTS
+%doc README.md PATENTS CONTRIBUTORS CONTRIBUTING.md AUTHORS
+%dir %{gopath}/src/%{import_path}
 %endif
+
 
 %if 0%{?with_unit_test} && 0%{?with_devel}
-%files unit-test -f unit-test.file-list
+%files unit-test-devel -f unit-test-devel.file-list
 %license LICENSE
-%doc CONTRIBUTING.md README AUTHORS CONTRIBUTORS PATENTS
+%doc README.md PATENTS CONTRIBUTORS CONTRIBUTING.md AUTHORS
 %endif
 
+
 %changelog
+* Sun Nov 25 2018 Robert-André Mauchin <zebob.m@gmail.com> - 0-0.15.20181125git62eef0e
+- Bump to upstream 62eef0e2fa9b2c385f7b2778e763486da6880d37
+
 * Thu Sep 21 2017 Jan Chaloupka <jchaloup@redhat.com> - 0-0.14.gite48874b
 - Bump to upstream e48874b42435b4347fc52bdee0424a52abc974d7
   related: #1360748
